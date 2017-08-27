@@ -1,0 +1,29 @@
+FROM alpine:3.6
+
+RUN apk update \
+    && apk add squid=3.5.23-r2 \
+    && apk add curl \
+    && apk add openssl \
+    && rm -rf /var/cache/apk/*
+
+COPY squid.conf /etc/squid/squid.conf
+COPY entrypoint.sh /usr/local/bin
+RUN chmod 755 /usr/local/bin/entrypoint.sh
+
+ENV ssl_cert_dir /etc/squid/ssl_cert
+RUN mkdir $ssl_cert_dir
+COPY openssl.cnf ${ssl_cert_dir}/openssl.cnf
+RUN chown squid:squid $ssl_cert_dir  \
+    && chmod 755 $ssl_cert_dir \
+    && openssl req -new -newkey rsa:2048 \
+    -sha256 -days 365 -nodes -x509 -extensions v3_ca \
+    -keyout ${ssl_cert_dir}/squid-proxy.pem  \
+    -out ${ssl_cert_dir}/squid-proxy.pem \
+    -config ${ssl_cert_dir}/openssl.cnf \
+    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
+    && /usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db \
+    && chown squid:squid -R /var/lib/ssl_db
+
+
+EXPOSE 3128
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
