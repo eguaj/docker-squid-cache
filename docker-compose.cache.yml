@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  ssl-cert-server:
+    image: sebp/lighttpd
+    volumes:
+      - ssl-cert:/var/www/localhost/htdocs
+    ports:
+      - "3129:80"
+
+  caching-proxy:
+    image: komlevv/caching-proxy
+    ports:
+      - "3128:3128"
+    volumes:
+      - squid-cache:/var/cache/squid
+      - ssl-cert:/etc/squid/ssl_cert
+    restart: always
+
+volumes:
+  squid-cache:
+  ssl-cert:
