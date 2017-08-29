@@ -14,6 +14,7 @@ RUN mkdir /etc/squid/ssl_cert
 COPY openssl.cnf /etc/squid/ssl_cert/openssl.cnf
 
 VOLUME /var/cache/squid
+VOLUME /var/log/squid
 VOLUME /etc/squid/ssl_cert
 
 EXPOSE 3128

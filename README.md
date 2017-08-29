@@ -21,12 +21,14 @@ services:
       - "<caching-proxy-port>:3128"
     volumes:
       - <squid-cache>:/var/cache/squid
+      - <squid-log>:/var/log/squid
       - <ssl-cert>:/etc/squid/ssl_cert
     restart: always
 
 volumes:
   <squid-cache>:
   <ssl-cert>:
+  <squid-log>:
 ```
 
 #### output
@@ -34,8 +36,9 @@ volumes:
 * `http://<host>:3129/squid-proxy.pem` certificate file url
 
 #### parameters
-* `<squid-cache>` name of volume used to persist squid cache 
-* `<ssl-cert>` name of volume used to share certificate between squid and certificate server
+* `<squid-cache>` name of volume to persist squid cache 
+* `<ssl-cert>` name of volume to share certificate between squid and certificate server
+* `<squid-log>` name of volume to persist logs
 * `<host>` docker host: localhost or virtual machine ip
 * `<caching-proxy-port>` port to access caching proxy
 * `<cert-server-port>` port to access cert server
