@@ -13,12 +13,12 @@ services:
     volumes:
       - ssl-cert:/var/www/localhost/htdocs
     ports:
-      - "3129:80"
+      - "<cert-server-port>:80"
 
   caching-proxy:
     image: komlevv/caching-proxy
     ports:
-      - "3128:3128"
+      - "<caching-proxy-port>:3128"
     volumes:
       - <squid-cache>:/var/cache/squid
       - <ssl-cert>:/etc/squid/ssl_cert
@@ -37,6 +37,8 @@ volumes:
 * `<squid-cache>` name of volume used to persist squid cache 
 * `<ssl-cert>` name of volume used to share certificate between squid and certificate server
 * `<host>` docker host: localhost or virtual machine ip
+* `<caching-proxy-port>` port to access caching proxy
+* `<cert-server-port>` port to access cert server
 
 ## Usage with `yarn`
 * caching service should be up & running during yarn build
