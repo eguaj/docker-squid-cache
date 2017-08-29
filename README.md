@@ -58,6 +58,3 @@ CMD yarn run start
 
 EXPOSE 8080
 ```
-
-### TODO:
-* Fix: squid emits new ssl cert on each non-cached build. Volume with old certificate overrides new one. Is this an issue?

@@ -10,19 +10,8 @@ COPY squid.conf /etc/squid/squid.conf
 COPY entrypoint.sh /usr/local/bin
 RUN chmod 755 /usr/local/bin/entrypoint.sh
 
-ENV SSL_CERT_DIR /etc/squid/ssl_cert
-RUN mkdir $SSL_CERT_DIR
-COPY openssl.cnf ${SSL_CERT_DIR}/openssl.cnf
-RUN chown squid:squid $SSL_CERT_DIR  \
-    && chmod 755 $SSL_CERT_DIR \
-    && openssl req -new -newkey rsa:2048 \
-    -sha256 -days 365 -nodes -x509 -extensions v3_ca \
-    -keyout ${SSL_CERT_DIR}/squid-proxy.pem  \
-    -out ${SSL_CERT_DIR}/squid-proxy.pem \
-    -config ${SSL_CERT_DIR}/openssl.cnf \
-    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
-    && /usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db \
-    && chown squid:squid -R /var/lib/ssl_db
+RUN mkdir /etc/squid/ssl_cert
+COPY openssl.cnf /etc/squid/ssl_cert/openssl.cnf
 
 VOLUME /var/cache/squid
 VOLUME /etc/squid/ssl_cert
