@@ -1,8 +1,10 @@
 # Squid caching proxy container with ssl bump
 
-## Usage
+## General Usage
 #### docker-compose
-persist cache in volume and serve root cert as static file
+* persist cached traffic in volume 
+* persist proxy logs in volume
+* serve root cert as static file
 
 ``` 
 version: '3'
@@ -11,7 +13,7 @@ services:
   ssl-cert-server:
     image: sebp/lighttpd
     volumes:
-      - ssl-cert:/var/www/localhost/htdocs
+      - <ssl-cert>:/var/www/localhost/htdocs
     ports:
       - "<cert-server-port>:80"
 
@@ -32,8 +34,8 @@ volumes:
 ```
 
 #### output
-* `http://<host>:3128` caching server url 
-* `http://<host>:3129/squid-proxy.pem` certificate file url
+* `http://<host>:<caching-proxy-port>` caching server url 
+* `http://<host>:<cert-server-port>/squid-proxy.pem` certificate file url
 
 #### parameters
 * `<squid-cache>` name of volume to persist squid cache 
@@ -46,20 +48,44 @@ volumes:
 ## Usage with `yarn`
 * caching service should be up & running during yarn build
 
-``` dockerfile
+```dockerfile
 FROM node:alpine
+# set docker host
 ENV docker_host 192.168.99.100
+# create app folder & copy app
 RUN mkdir -p /app
 WORKDIR /app
 COPY package.json yarn.lock ./
+# install curl & fetch certificate to workdir 
+# or use node.js standard http module
 RUN apk update && apk add curl \
     && curl http://${docker_host}:3129/squid-proxy.pem -o ./squid-proxy.pem
+# set yarn config to use proxy
 RUN yarn config set proxy http://${docker_host}:3128
 RUN yarn config set https-proxy http://${docker_host}:3128
 RUN yarn config set cafile squid-proxy.pem
+# install package.json, don't generate a lock file
 RUN yarn --pure-lockfile
 
 CMD yarn run start
 
 EXPOSE 8080
 ```
+## Override config files with local
+
+```dockerfile
+FROM komlevv/caching-proxy
+COPY squid.conf /etc/squid/squid.conf
+COPY openssl.cnf /etc/squid/ssl_cert/openssl.cnf
+```
+
+## Notes 
+* Proxy is set to cache everything for a year. 
+* Cache is not validated.
+* Max cached file size is 10gb based on Docker default container size limit. 
+
+See `squid.conf`
+
+## Issues
+Tested to work with `yarn`.
+Report issues here: https://github.com/komlevv/docker-squid-cache/issues
