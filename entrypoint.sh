@@ -15,12 +15,7 @@ echo "Checking certificate..."
 if [[ ! -f ${SSL_CERT_DIR}/squid-proxy.pem ]]
 then
     echo "No certificate file found. Initializing new certificate..."
-    openssl req -new -newkey rsa:2048 \
-    -sha256 -days 365 -nodes -x509 -extensions v3_ca \
-    -keyout ${SSL_CERT_DIR}/squid-proxy.pem  \
-    -out ${SSL_CERT_DIR}/squid-proxy.pem \
-    -config ${SSL_CERT_DIR}/openssl.cnf \
-    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com"
+    openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout ${SSL_CERT_DIR}/squid-proxy.pem -out ${SSL_CERT_DIR}/squid-proxy.pem -extensions v3_ca -subj "/C=US/ST=WhoCaresAboutIt/L=NotImportantAtAll/O=NotImportant"
     /usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db
     chown squid:squid -R /var/lib/ssl_db
 else
