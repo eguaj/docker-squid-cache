@@ -16,10 +16,18 @@ if [[ ! -f ${SSL_CERT_DIR}/squid-proxy.pem ]]
 then
     echo "No certificate file found. Initializing new certificate..."
     openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout ${SSL_CERT_DIR}/squid-proxy.pem -out ${SSL_CERT_DIR}/squid-proxy.pem -extensions v3_ca -subj "/C=US/ST=WhoCaresAboutIt/L=NotImportantAtAll/O=NotImportant"
+else
+    echo "Found existing certificate at ${SSL_CERT_DIR}/squid-proxy.pem"
+fi
+
+echo "Checking ssl_db..."
+if [[ ! -f "/var/lib/ssl_db/index.txt" ]]
+then
+    echo "No index file found in ssl_db. Initializing new ssl_db directory..."
     /usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db
     chown squid:squid -R /var/lib/ssl_db
 else
-    echo "Found existing certificate at ${SSL_CERT_DIR}/squid-proxy.pem"
+    echo "Found existing index file in ssl_db at '/var/lib/ssl_db'"
 fi
 
 echo "Checking cache..."

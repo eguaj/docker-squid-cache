@@ -45,6 +45,26 @@ volumes:
 * `<caching-proxy-port>` port to access caching proxy
 * `<cert-server-port>` port to access cert server
 
+#### Manually building and running docker image
+
+```
+$ docker build -t docker-squid-cache .
+
+$ docker volume create docker-squid-cache.cache
+$ docker volume create docker-squid-cache.logs
+$ docker volume create docker-squid-cache.certs
+
+$ docker container create \
+    --name docker-squid-cache \
+    --mount source=docker-squid-cache.cache,target=/var/cache/squid \
+    --mount source=docker-squid-cache.logs,target=/var/log/squid \
+    --mount source=docker-squid-cache.certs,target=/etc/squid/ssl_cert \
+    --publish 3128:3128 \
+    docker-squid-cache
+
+$ docker start -i docker-squid-cache
+```
+
 ## Usage with `yarn`
 * caching service should be up & running during yarn build
 
