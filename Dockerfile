@@ -1,10 +1,16 @@
 FROM alpine:3.6
 
+ENV TZ=Europe/Paris
+
 RUN apk update \
     && apk add squid=3.5.27-r0 \
     && apk add curl \
     && apk add openssl \
+    && apk add tzdata \
     && rm -rf /var/cache/apk/*
+
+RUN cp "/usr/share/zoneinfo/$TZ" /etc/localtime
+RUN echo "$TZ" > /etc/timezone
 
 COPY squid.conf /etc/squid/squid.conf
 COPY entrypoint.sh /usr/local/bin
